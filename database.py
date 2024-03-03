@@ -84,7 +84,7 @@ class Database:
     async def fetch_products(self):
         try:
             conn = await asyncpg.connect(user='postgres', database='canteen')
-            rows = await conn.fetch("SELECT * FROM canteen ORDER BY year ASC, month ASC")
+            rows = await conn.fetch("SELECT * FROM canteen ORDER BY year DESC, month DESC")
 
             data = [dict(row) for row in rows]
 
@@ -96,7 +96,19 @@ class Database:
     async def fetch_product(self, product_id):
         try:
             conn = await asyncpg.connect(user='postgres', database='canteen')
-            rows = await conn.fetch("SELECT * FROM canteen WHERE pluno = $1 ORDER BY year ASC, month ASC", product_id)
+            rows = await conn.fetch("SELECT * FROM canteen WHERE pluno = $1 ORDER BY year DESC, month DESC", product_id)
+
+            data = [dict(row) for row in rows]
+
+            return data
+        finally:
+            if conn:
+                await conn.close()
+
+    async def fetch_prediction_product(self, product_id):
+        try:
+            conn = await asyncpg.connect(user='postgres', database='canteen')
+            rows = await conn.fetch("SELECT * FROM canteen WHERE pluno = $1 ORDER BY year DESC, month DESC LIMIT 5", product_id)
 
             data = [dict(row) for row in rows]
 
